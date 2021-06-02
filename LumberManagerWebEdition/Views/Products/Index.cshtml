@@ -3,6 +3,7 @@
 @inject IHttpContextAccessor http
 @{
     ViewData["Title"] = "Index";
+    var cartProducts = (List<ProductCookieHelper>)ViewData["CartProducts"];
     var listHeight = (List<byte>)ViewData["ListHeight"];
     var listWidth = (List<byte>)ViewData["ListWidth"];
     var listLength = (List<byte>)ViewData["ListLength"];
@@ -222,10 +223,25 @@
                         <td>
                             <div class="form-group">
                                 <form asp-controller="Cart" asp-action="Add" method="post">
-                                    <input type="text" name="qty" id="qty" />
+                                    @{
+                                        bool isCartValid = false;
+                                    }
+                                    @for (int i = 0; i < cartProducts.Count; i++)
+                                    {
+                                        if (item.ProductID == cartProducts[i].ProductID)
+                                        {
+                                            <input type="text" name="qty" id="qty" value="@cartProducts[i].Quantity" />
+                                            isCartValid = true;
+                                            break;
+                                        }
+                                    }
+                                    @if (!isCartValid)
+                                    {
+                                        <input type="text" name="qty" id="qty" value="0" />
+                                    }
                                     <input type="hidden" name="prodId" id="prodId" value="@item.ProductID" />
                                     <a class="btn btn-primary" type="submit" id="add" onclick="changeQuantity(this)" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl"
-                                       asp-route-inputquantity="0" asp-controller="Cart" asp-action="Add" >Add</a>
+                                       asp-route-inputquantity="0" asp-controller="Cart" asp-action="Add">Add</a>
                                 </form>
                             </div>
                         </td>

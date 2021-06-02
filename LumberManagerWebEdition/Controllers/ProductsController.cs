@@ -9,16 +9,19 @@ using LumberManagerWebEdition.Data;
 using LumberManagerWebEdition.Models;
 using Microsoft.AspNetCore.Authorization;
 using static Humanizer.In;
+using Microsoft.AspNetCore.Http;
 
 namespace LumberManagerWebEdition.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHttpContextAccessor _httpContext;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context, IHttpContextAccessor httpContext)
         {
             _context = context;
+            _httpContext = httpContext;
         }
 
         // GET: Products
@@ -83,6 +86,10 @@ namespace LumberManagerWebEdition.Controllers
                 products = await ProductDb.GetAllProductsAsync(_context, PageSize, pageNum);
                 numProducts = await ProductDb.GetTotalProductsAsync(_context);
             }
+
+            List<ProductCookieHelper> cartProducts = CookieHelper.GetCartProducts(_httpContext);
+
+            ViewData["CartProducts"] = cartProducts;
 
             ViewData["Height"] = height;
 
