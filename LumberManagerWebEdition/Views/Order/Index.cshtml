@@ -1,0 +1,170 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    List<User> users = (List<User>)ViewData["Users"];
+    List<Order> orders = (List<Order>)ViewData["Orders"];
+    User user = (User)ViewData["User"];
+}
+
+@if (User.IsInRole(IdentityHelper.Admin))
+{
+    <h1>Order Lookup</h1>
+
+
+    if (TempData["InvalidOrderNumber"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["InvalidOrderNumber"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    <table class="table">
+        <tr>
+            <th>
+                <h2>Customer Lookup</h2>
+            </th>
+            <th>
+                <h2>Look up by order number:</h2>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                @if (ViewData["SelectedCustomer"] != null)
+                {
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownHeightButton" value="Customers" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @ViewData["SelectedCustomer"]
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownHeightButton" value="Customers" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Customers
+                    </button>
+                }
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    @for (int i = 0; i < users.Count; i++)
+                    {
+                        if (users[i].Business != null)
+                        {
+                            <a class="dropdown-item" asp-action="Index" asp-route-id="@users[i].Id">@users[i].Business</a>
+                        }
+                        else
+                        {
+                            <a class="dropdown-item" asp-action="Index" asp-route-id="@users[i].Id">@users[i].ContactFirstName @users[i].ContactLastName</a>
+                        }
+                    }
+                </div>
+            </td>
+            <td>
+                <input type="text" name="order" id="order" />
+                <a class="btn btn-primary" id="order-button" asp-action="ViewOrder" asp-route-orderId="temp">Look Up</a>
+            </td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <tr>
+            <th>
+                Order #
+            </th>
+            <th>
+                Order Date
+            </th>
+            <th>
+                Ship Date
+            </th>
+            <th>
+
+            </th>
+        </tr>
+        @if (orders != null)
+        {
+            @for (int i = 0; i < orders.Count; i++)
+            {
+    <tr>
+        <td>
+            <div>
+                <a asp-action="ViewOrder" asp-route-orderId="@orders[i].OrderID" asp-route-userId="@user.Id">@orders[i]</a>
+            </div>
+        </td>
+        <td>
+            @orders[i].InvoiceDate.ToString("MMM dd yyyy")
+        </td>
+
+        @if (orders[i].ShipDate >= orders[i].InvoiceDate)
+        {
+            <td>
+                @orders[i].ShipDate.ToString("MMM dd yyyy")
+            </td>
+            <td>
+
+            </td>
+        }
+        else
+        {
+            <td>
+                Estimated Ship Date: @orders[i].InvoiceDate.AddDays(14).ToString("MMM dd yyyy")
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-action="SetShipDate" asp-route-orderId="@orders[i].OrderID">Set Ship Date</a>
+            </td>
+        }
+
+
+    </tr>
+            }
+        }
+    </table>
+}
+else if (User.IsInRole(IdentityHelper.Customer))
+{
+    <h1>Recent Orders</h1>
+    <table class="table">
+        <tr>
+            <th>
+                Order #
+            </th>
+            <th>
+                Order Date
+            </th>
+            <th>
+                Ship Date
+            </th>
+        </tr>
+        @if (orders != null)
+        {
+            @for (int i = 0; i < orders.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <div>
+                            <a asp-action="ViewOrder" asp-route-orderId="@orders[i].OrderID" asp-route-userId="@user.Id">@orders[i]</a>
+                        </div>
+                    </td>
+                    <td>
+                        @orders[i].InvoiceDate.ToString("MMM dd yyyy")
+                    </td>
+
+                    @if (orders[i].ShipDate >= orders[i].InvoiceDate)
+                    {
+                        <td>
+                            @orders[i].ShipDate.ToString("MMM dd yyyy")
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            Estimated Ship Date: @orders[i].InvoiceDate.AddDays(14).ToString("MMM dd yyyy")
+                        </td>
+                    }
+
+                </tr>
+            }
+        }
+    </table>
+}
+
+
+<script src="~/js/OrderLookup.js"></script>

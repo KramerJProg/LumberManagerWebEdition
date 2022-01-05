@@ -88,6 +88,9 @@ namespace LumberManagerWebEdition.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            public string PhoneNumber { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -105,7 +108,7 @@ namespace LumberManagerWebEdition.Areas.Identity.Pages.Account
                 var user = new User { UserName = Input.Username, Email = Input.Email,
                                       Business = Input.Business, ContactFirstName = Input.ContactFirstName,
                                       ContactLastName = Input.ContactLastName, Address = Input.Address,
-                                      City = Input.City, State = Input.State, ZipCode = Input.Zipcode};
+                                      City = Input.City, State = Input.State, ZipCode = Input.Zipcode, PhoneNumber = Input.PhoneNumber};
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

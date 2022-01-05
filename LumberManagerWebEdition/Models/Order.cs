@@ -19,10 +19,45 @@ namespace LumberManagerWebEdition.Models
         public DateTime InvoiceDate { get; set; }
 
         /// <summary>
+        /// The Business to ship to
+        /// </summary>
+        public string ShipBusiness { get; set; }
+
+        /// <summary>
+        /// The first name of the contact for shipping
+        /// </summary>
+        public string ShipContactFirstName { get; set; }
+
+        /// <summary>
+        /// The last name of the contact for shipping
+        /// </summary>
+        public string ShipContactLastName { get; set; }
+
+        /// <summary>
         /// The date the order has shipped. (nullable)
         /// </summary>
         [Column(TypeName = "smalldatetime")]
-        public DateTime? ShipDate { get; set; }
+        public DateTime ShipDate { get; set; }
+
+        /// <summary>
+        /// The Shipping Address
+        /// </summary>
+        public string ShipAddress { get; set; }
+
+        /// <summary>
+        /// The city to ship to
+        /// </summary>
+        public string ShipCity { get; set; }
+
+        /// <summary>
+        /// The state to ship to
+        /// </summary>
+        public string ShipState { get; set; }
+
+        /// <summary>
+        /// The zip code to ship to
+        /// </summary>
+        public string ShipZipCode { get; set; }
 
         public virtual List<OrderLineItems> OrderLineItems { get; set; } = new List<OrderLineItems>();
 
@@ -35,7 +70,7 @@ namespace LumberManagerWebEdition.Models
 
         public override string ToString()
         {
-            return $"Invoice number: {OrderID}" + " " + String.Join(" ", Customers);
+            return $"Order number: {OrderID}";
         }
     }
 }

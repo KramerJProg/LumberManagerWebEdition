@@ -30,6 +30,12 @@ namespace LumberManagerWebEdition.Models
         public byte Length { get; set; }
 
         /// <summary>
+        /// The total board footage of a unit
+        /// </summary>
+        [Required]
+        public int BoardFeet { get; set; }
+
+        /// <summary>
         /// The amount in the inventory. Default is zero
         /// </summary>
         public short OnHand { get; set; } = 0;
@@ -39,11 +45,19 @@ namespace LumberManagerWebEdition.Models
         /// </summary>
         public short Sold { get; set; } = 0;
 
+        /// <summary>
+        /// If the product is not for sale then it is not shown on the products page
+        /// </summary>
+        public bool IsForSale { get; set; } = true;
+
         public override string ToString()
         {
             return Height + " x " + Width + " x " + Length + " In Stock " + OnHand + " Sold " + Sold + " " + String.Join(" ", Category);
         }
 
+        /// <summary>
+        /// A ToString() method to be displayed on orders.
+        /// </summary>
         public string OrderDisplayString()
         {
             if (Category[1].CategoryName == "N/A")

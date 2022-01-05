@@ -10,7 +10,7 @@ namespace LumberManagerWebEdition.Models
     public class User : IdentityUser
     {
         [Key]
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         /// <summary>
         /// If applicable, the name of the business. (nullable)
@@ -43,6 +43,9 @@ namespace LumberManagerWebEdition.Models
 
         [Required]
         public int ZipCode { get; set; }
+
+        [Required]
+        public override string PhoneNumber { get; set; }
 
         public List<Order> Orders { get; set; } = new List<Order>();
 

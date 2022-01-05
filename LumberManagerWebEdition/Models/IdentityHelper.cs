@@ -31,6 +31,11 @@ namespace LumberManagerWebEdition.Models
             options.Lockout.MaxFailedAccessAttempts = 3;
         }
 
+        /// <summary>
+        /// Creates admin and customer roles if they do not exist yet.
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="roles">Admin and Customer.</param>
         public static async Task CreateRoles(IServiceProvider provider, params string[] roles)
         {
             RoleManager<IdentityRole> roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -46,6 +51,10 @@ namespace LumberManagerWebEdition.Models
             }
         }
 
+        /// <summary>
+        /// Creates default admin role.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public static async Task CreateDefaultAdmin(IServiceProvider serviceProvider)
         {
             const string email = "admin@admin.com";
@@ -58,6 +67,7 @@ namespace LumberManagerWebEdition.Models
             const string state = "WA";
             const int zip = 98444;
             const string business = "Lumber Everything";
+            const string phoneNumber = "253-555-6556";
 
             var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
@@ -74,13 +84,14 @@ namespace LumberManagerWebEdition.Models
                     City = city,
                     State = state,
                     ZipCode = zip,
-                    Business = business
+                    Business = business,
+                    PhoneNumber = phoneNumber
                 };
 
-                // Create instructor
+                // Create admin
                 await userManager.CreateAsync(admin, password);
 
-                // Add to instructor role
+                // Add to admin role
                 await userManager.AddToRoleAsync(admin, Admin);
             }
         }

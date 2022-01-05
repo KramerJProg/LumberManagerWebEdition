@@ -74,6 +74,8 @@ namespace LumberManagerWebEdition
             IdentityHelper.CreateRoles(serviceProvider.ServiceProvider, IdentityHelper.Admin, IdentityHelper.Customer).Wait();
 
             IdentityHelper.CreateDefaultAdmin(serviceProvider.ServiceProvider).Wait();
+
+            GetWeather getWeather = new GetWeather();
         }
     }
 }

@@ -1,0 +1,173 @@
+﻿@model LumberManagerWebEdition.Models.CreateOrderViewModel
+@{
+    ViewData["Title"] = "Confirm";
+    int totalCartProducts = (int)ViewData["Cart"];
+}
+
+<table class="table table-striped">
+    <tr>
+        <td>
+            <h1>Confirm Order</h1>
+        </td>
+    </tr>
+</table>
+
+        <form id="confirm" asp-action="Confirm">
+            <table class="table table-borderless">
+                <tr>
+                    <th>
+                        <h1>Billing Address</h1>
+                    </th>
+                    <th>
+                        <h1>Shipping Address</h1>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.Business" class="control-label">Business</label>
+                                <p class="form-control">@Model.User.Business</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipBusiness" class="control-label">Business</label>
+                                <input class="form-control" asp-for="Order.ShipBusiness" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="@Model.User.ContactFirstName" class="control-label">First Name</label>
+                                <p class="form-control">@Model.User.ContactFirstName</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipContactFirstName" class="control-label">First Name</label>
+                                <input id="firstName" class="form-control" asp-for="Order.ShipContactFirstName" />
+                                <span id="firstNameError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.ContactLastName" class="control-label">Last Name</label>
+                                <p class="form-control">@Model.User.ContactLastName</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipContactLastName" class="control-label">Last Name</label>
+                                <input id="lastName" class="form-control" asp-for="Order.ShipContactLastName" />
+                                <span id="lastNameError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.Address" class="control-label">Street Address</label>
+                                <p class="form-control">@Model.User.Address</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipAddress" class="control-label">Street Address</label>
+                                <input id="address" class="form-control" asp-for="Order.ShipAddress" />
+                                <span id="addressError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.City" class="control-label">City</label>
+                                <p class="form-control">@Model.User.City</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipCity" class="control-label">City</label>
+                                <input id="city" class="form-control" asp-for="Order.ShipCity" />
+                                <span id="cityError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.State" class="control-label">State</label>
+                                <p class="form-control">@Model.User.State</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipState" class="control-label">State</label>
+                                <input id="state" class="form-control" asp-for="Order.ShipState" />
+                                <span id="stateError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="User.ZipCode" class="control-label">Zip Code</label>
+                                <p class="form-control">@Model.User.ZipCode</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label asp-for="Order.ShipZipCode" class="control-label">Zip Code</label>
+                                <input id="zipCode" class="form-control" asp-for="Order.ShipZipCode" />
+                                <span id="zipCodeError" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="control-label">Total products in cart</label>
+                    <p class="form-control">@totalCartProducts</p>
+
+                    <label class="control-label">Total Price</label>
+                    <p class="form-control">$@string.Format("{0:n2}", ViewData["Total Price"])</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <input id="submit" type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+
+<script src="~/js/Confirm.js"></script>

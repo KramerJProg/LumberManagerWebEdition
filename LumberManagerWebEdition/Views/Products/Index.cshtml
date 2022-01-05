@@ -3,13 +3,25 @@
 @inject IHttpContextAccessor http
 @{
     ViewData["Title"] = "Index";
+
+    // List of products in the Cookie.
     var cartProducts = (List<ProductCookieHelper>)ViewData["CartProducts"];
+
+    // List for filtering.
     var listHeight = (List<byte>)ViewData["ListHeight"];
     var listWidth = (List<byte>)ViewData["ListWidth"];
     var listLength = (List<byte>)ViewData["ListLength"];
     var listCategory = (List<Category>)ViewData["ListCategory"];
     var listType = (List<Category>)ViewData["ListType"];
+    var weather = (WeatherAPI)ViewData["Weather"];
+    int yPosition = 0;
+    if (TempData["YPosition"] != null)
+    {
+        yPosition = (int)TempData["YPosition"];
+    }
 }
+
+
 
 @if (TempData["Message"] != null)
 {
@@ -176,7 +188,7 @@
         <tbody>
 
             @{
-                string previousUrl = http.HttpContext.Request.Path;
+                string previousUrl = string.Format("{0}://{1}{2}{3}", Context.Request.Scheme, Context.Request.Host, Context.Request.Path, Context.Request.QueryString);
             }
             @{
                 int j = 0;
@@ -226,6 +238,11 @@
                                     @{
                                         bool isCartValid = false;
                                     }
+                                    <!-- Setting asp-route-inputquantity to "temp" so it is easy to change the href within JavaScript.-->
+                                    <button class="btn btn-primary rounded-circle update" type="submit" id="update" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl"
+                                            asp-route-inputquantity="temp" asp-controller="Cart" asp-action="Add" style="display: none" asp-route-scrollY="tempY"></button>
+                                    <a class="btn btn-primary rounded-circle subtract-button" type="submit" id="subtract" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl"
+                                       asp-route-inputquantity="temp" asp-route-scrollY="tempY" asp-controller="Cart" asp-action="Add" onclick="subtractQuantity()">-</a>
                                     @for (int i = 0; i < cartProducts.Count; i++)
                                     {
                                         if (item.ProductID == cartProducts[i].ProductID)
@@ -240,8 +257,9 @@
                                         <input type="text" name="qty" id="qty" value="0" />
                                     }
                                     <input type="hidden" name="prodId" id="prodId" value="@item.ProductID" />
-                                    <a class="btn btn-primary" type="submit" id="add" onclick="changeQuantity(this)" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl"
-                                       asp-route-inputquantity="0" asp-controller="Cart" asp-action="Add">Add</a>
+                                    <a class="btn btn-primary rounded-circle add-button" type="submit" id="add" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl"
+                                       asp-route-inputquantity="temp" asp-route-scrollY="tempY" asp-controller="Cart" asp-action="Add" onclick="addQuantity()">+</a>
+
                                 </form>
                             </div>
                         </td>
@@ -271,10 +289,12 @@
 
         }
     </ul>
-    
+
 }
 else
 {
     <h1 class="text-danger">Log in or register to see Products.</h1>
 }
+<!--Making the y position available to AddToCart.js-->
+<script>let yPos = @yPosition;</script>
 <script src="~/js/AddToCart.js"></script>

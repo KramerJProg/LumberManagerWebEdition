@@ -10,9 +10,14 @@ using LumberManagerWebEdition.Models;
 using Microsoft.AspNetCore.Authorization;
 using static Humanizer.In;
 using Microsoft.AspNetCore.Http;
+using System.Net;
+using Nancy.Json;
 
 namespace LumberManagerWebEdition.Controllers
 {
+    /// <summary>
+    /// Controller that allows Add, Edit, Delete products to Database.
+    /// </summary>
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,14 +29,70 @@ namespace LumberManagerWebEdition.Controllers
             _httpContext = httpContext;
         }
 
-        // GET: Products
+        /// <summary>
+        /// Displays the list of products in the database. 
+        /// </summary>
+        /// <param name="id">Product ID.</param>
+        /// <param name="height">Height of a product.</param>
+        /// <param name="width">Width of a product.</param>
+        /// <param name="length">Length of a product.</param>
+        /// <param name="category">Category of a product.</param>
+        /// <param name="treatmentType">Treatment type of a product.</param>
         public async Task<IActionResult> Index(int? id, byte? height, byte? width, byte? length, string category, string treatmentType)
         {
             int pageNum = id ?? 1;
-            const int PageSize = 10;
+            const int PageSize = 20;
             ViewData["CurrentPage"] = pageNum;
 
             List<byte> listHeight = await ProductDb.GetHeightAsync(_context);
+
+            // Getting values for filtered drop down boxes.
+            var filterLists = await GetFilteredValues(height, width, length, category);
+
+            // Getting products based off filter preferences.
+            var filterProducts = await GetFilteredProducts(PageSize, pageNum, height, width, length, category, treatmentType);
+            
+            List<ProductCookieHelper> cartProducts = CookieHelper.GetCartProducts(_httpContext);
+
+            ViewData["CartProducts"] = cartProducts;
+
+            ViewData["Height"] = height;
+
+            ViewData["Width"] = width;
+
+            ViewData["Length"] = length;
+
+            ViewData["Category"] = category;
+
+            ViewData["Type"] = treatmentType;
+
+            ViewData["ListHeight"] = listHeight;
+
+            ViewData["ListWidth"] = filterLists.listWidth;
+
+            ViewData["ListLength"] = filterLists.listLength;
+
+            ViewData["ListCategory"] = filterLists.listCategory;
+
+            ViewData["ListType"] = filterLists.listType;
+
+            int totalPages = (int)Math.Ceiling((double)filterProducts.numProducts / PageSize);
+
+            ViewData["MaxPage"] = totalPages;
+
+            return View(filterProducts.products);
+        }
+
+        /// <summary>
+        /// Grabs filter values based on previous filter data
+        /// </summary>
+        /// <param name="height"></param>
+        /// <param name="width"></param>
+        /// <param name="length"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        private async Task<(List<byte> listWidth, List<byte> listLength, List<Category> listCategory, List<Category> listType)> GetFilteredValues(byte? height, byte? width, byte? length, string category)
+        {
             List<byte> listWidth = new List<byte>();
             List<byte> listLength = new List<byte>();
             List<Category> listCategory = new List<Category>();
@@ -52,10 +113,25 @@ namespace LumberManagerWebEdition.Controllers
                     }
                 }
             }
+            return (listWidth, listLength, listCategory, listType);
+        }
 
-            List<Product> products;
+        /// <summary>
+        /// Grabs products based on filter data and page number and page size
+        /// </summary>
+        /// <param name="PageSize"></param>
+        /// <param name="pageNum"></param>
+        /// <param name="height"></param>
+        /// <param name="width"></param>
+        /// <param name="length"></param>
+        /// <param name="category"></param>
+        /// <param name="treatmentType"></param>
+        /// <returns></returns>
+        private async Task<(List<Product> products, int numProducts)> GetFilteredProducts(int PageSize, int pageNum, byte? height, byte? width, byte? length, 
+                                                                                                            string category, string treatmentType)
+        {
             int numProducts;
-
+            List<Product> products;
             if (height != null && width != null && length != null && category != null && treatmentType != null)
             {
                 products = await ProductDb.GetAllProductsAsync(_context, PageSize, pageNum, (byte)height, (byte)width, (byte)length, category, treatmentType);
@@ -86,41 +162,12 @@ namespace LumberManagerWebEdition.Controllers
                 products = await ProductDb.GetAllProductsAsync(_context, PageSize, pageNum);
                 numProducts = await ProductDb.GetTotalProductsAsync(_context);
             }
-
-            List<ProductCookieHelper> cartProducts = CookieHelper.GetCartProducts(_httpContext);
-
-            ViewData["CartProducts"] = cartProducts;
-
-            ViewData["Height"] = height;
-
-            ViewData["Width"] = width;
-
-            ViewData["Length"] = length;
-
-            ViewData["Category"] = category;
-
-            ViewData["Type"] = treatmentType;
-
-            ViewData["ListHeight"] = listHeight;
-
-            ViewData["ListWidth"] = listWidth;
-
-            ViewData["ListLength"] = listLength;
-
-            ViewData["ListCategory"] = listCategory;
-
-            ViewData["ListType"] = listType;
-
-            
-
-            int totalPages = (int)Math.Ceiling((double)numProducts / PageSize);
-
-            ViewData["MaxPage"] = totalPages;
-
-            return View(products);
+            return (products, numProducts);
         }
 
-        // GET: Products/Create
+        /// <summary>
+        /// GET : Adds a product to the database.
+        /// </summary>
         [Authorize(Roles = IdentityHelper.Admin)]
         [HttpGet]
         public IActionResult Create()
@@ -141,9 +188,10 @@ namespace LumberManagerWebEdition.Controllers
             return View(createProductViewModel);
         }
 
-        // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST : for Create // Adds product to database.
+        /// </summary>
+        /// <param name="createProductViewModel"></param>
         [Authorize(Roles = IdentityHelper.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -157,6 +205,8 @@ namespace LumberManagerWebEdition.Controllers
                 bool six0Selected = (Request.Form[".60"] == ".60") ? true : false;
                 bool acqSelected = (Request.Form["acq"] == "ACQ") ? true : false;
                 bool ccaSelected = (Request.Form["cca"] == "CCA") ? true : false;
+
+                // Checking which checkboxes are checked to set category and treatment type.
                 if (wwSelected)
                 {
                     createProductViewModel.Product.Category.Add(CategoryDb.GetCategory(_context, 1));
@@ -195,6 +245,8 @@ namespace LumberManagerWebEdition.Controllers
                         createProductViewModel.Product.Category.Add(CategoryDb.GetCategory(_context, 6));
                     }
                 }
+
+                // Checking to make sure that the product is NOT in the database.
                 if (!(ProductDb.CheckForExistingProduct(_context, createProductViewModel.Product)))
                 {
                     await ProductDb.AddProductAsync(_context, createProductViewModel.Product);
@@ -203,14 +255,27 @@ namespace LumberManagerWebEdition.Controllers
                 }
                 else
                 {
-                    TempData["Message"] = "Product not added. Product already in database.";
+                    Product product = ProductDb.GetProduct(_context, createProductViewModel.Product);
+                    
+                    if (product != null && !product.IsForSale)
+                    {
+                        product.IsForSale = true;
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        TempData["Message"] = "Product not added. Product already in database.";
+                    }
                     return RedirectToAction(nameof(Index));
                 }
             }
             return View(createProductViewModel);
         }
 
-        // GET: Products/Edit/5
+        /// <summary>
+        /// GET : Edits/Updates product in the database.
+        /// </summary>
+        /// <param name="id">ID of product.</param>
         [Authorize(Roles = IdentityHelper.Admin)]
         public IActionResult UpdateInventory(int? id)
         {
@@ -227,9 +292,12 @@ namespace LumberManagerWebEdition.Controllers
             return View(product);
         }
 
-        // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST : Edits/Updates product in the database.
+        /// </summary>
+        /// <param name="id">ID of product.</param>
+        /// <param name="product">The product.</param>
+        /// <returns></returns>
         [Authorize(Roles = IdentityHelper.Admin)]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -244,7 +312,7 @@ namespace LumberManagerWebEdition.Controllers
             {
                 try
                 {
-                    await ProductDb.Update(_context, product);
+                    await ProductDb.UpdateAsync(_context, product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -262,7 +330,10 @@ namespace LumberManagerWebEdition.Controllers
             return View(product);
         }
 
-        // GET: Products/Delete/5
+        /// <summary>
+        /// GET : Loads the delete page with the product ID.
+        /// </summary>
+        /// <param name="id">Product ID</param>
         [Authorize(Roles = IdentityHelper.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -281,14 +352,18 @@ namespace LumberManagerWebEdition.Controllers
             return View(product);
         }
 
-        // POST: Products/Delete/5
+        /// <summary>
+        /// POST : Deletes the product.
+        /// </summary>
+        /// <param name="id">Product ID.</param>
+        /// <returns></returns>
         [Authorize(Roles = IdentityHelper.Admin)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            _context.Products.Remove(product);
+            product.IsForSale = false;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

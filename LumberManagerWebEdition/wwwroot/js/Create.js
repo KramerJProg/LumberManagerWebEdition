@@ -15,6 +15,39 @@
     onSubmit.onclick = validateCheckboxes;
 }
 
+function validateInput() {
+    let isValid = true;
+
+    let height = document.getElementById("height");
+    let heightValue = height.value;
+    if (heightValue.trim() == "") {
+        isValid = false;
+    }
+
+    let width = document.getElementById("width");
+    let widthValue = width.value;
+    if (widthValue.trim() == "") {
+        isValid = false;
+    }
+
+    let length = document.getElementById("length");
+    let lengthValue = length.value;
+    if (lengthValue.trim() == "") {
+        isValid = false;
+    }
+
+    let boardfeet = document.getElementById("boardfeet");
+    let boardfeetValue = boardfeet.value;
+    if (boardfeetValue.trim() == "") {
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+/**
+ * Checks to see which checkboxes are checked.
+ **/
 function validateCheckboxes() {
     let isValid = false;
     if ($("#ww").prop("checked")) {
@@ -30,17 +63,22 @@ function validateCheckboxes() {
         isValid = true;
     }
 
+    let validInput = validateInput();
+
     if (!isValid) {
         document.getElementById("checkbox-error").innerText = "Must select appropriate checkbox categories";
         $("#create").submit(function (e) {
             e.preventDefault();
         });
     }
-    else {
+    else if (validInput == true) {
         $("#create").unbind("submit").submit();
     }
 }
 
+/**
+ * Disables incompatable type checkboxes.
+ **/
 function disableCheckBoxes() {
     if (this == document.getElementById("ww")) {
         if (this.checked) {

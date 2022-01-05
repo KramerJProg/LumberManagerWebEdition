@@ -1,10 +1,12 @@
-﻿@model IEnumerable<LumberManagerWebEdition.Models.ProductCookieHelper>
+﻿@model IEnumerable<LumberManagerWebEdition.Models.Product>
 @using Microsoft.AspNetCore.Http
 
 @inject IHttpContextAccessor http
 
 @{
     ViewData["Title"] = "Summary";
+    var quantity = (List<int>)ViewData["Quantity"];
+    int i = 0;
 }
 
 <h1>Summary</h1>
@@ -54,12 +56,14 @@
                 @Html.DisplayFor(modelItem => item.Category[1].CategoryName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
+                @quantity[i]
             </td>
             <td>
-                <a class="btn btn-primary" asp-controller="Cart" asp-action="Delete" asp-route-id="@item.ProductID" asp-route-previousUrl="@previousUrl">Remove</a>
+                <a class="btn btn-primary" asp-controller="Cart" asp-action="Delete" asp-route-id="@item.ProductID">Remove</a>
             </td>
         </tr>
+    i++;
 }
     </tbody>
 </table>
+<a class="btn btn-primary" asp-controller="Cart" asp-action="Confirm">Create Order</a>

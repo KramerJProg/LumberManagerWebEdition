@@ -20,6 +20,8 @@ namespace LumberManagerWebEdition.Models
         [Required]
         public short Quantity { get; set; }
 
+        public double PricePer1000BoardFeet { get; set; }
+
         public virtual Order Order { get; set; }
 
         public virtual Product Product { get; set; }

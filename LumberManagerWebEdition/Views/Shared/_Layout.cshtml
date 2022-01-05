@@ -1,5 +1,6 @@
 ﻿
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor sessionData
+@using LumberManagerWebEdition.Models
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,13 +10,14 @@
     <title>@ViewData["Title"] - LumberManagerWebEdition</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    @await RenderSectionAsync("Style", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LumberManagerWebEdition</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+        <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container menu">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Lumber Manager Web Edition</a>
+                <button id="hamburger" class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -25,27 +27,41 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
+                            <!--Product page should not be displayed if user is not logged in.-->
                             @if (User.IsInRole(IdentityHelper.Admin) || User.IsInRole(IdentityHelper.Customer))
                             {
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Product</a>
                             }
                         </li>
+                        <li>
+                            @if (User.IsInRole(IdentityHelper.Admin))
+                            {
+                                <a class="nav-link text-dark" asp-controller="Order" asp-action="Index">Orders</a>
+                            }
+                            @if (User.IsInRole(IdentityHelper.Customer))
+                            {
+                                <a class="nav-link text-dark" asp-controller="Order" asp-action="Index">Recent Orders</a>
+                            }
+                        </li>
                     </ul>
+                    <!--Displays cart icon for customers.-->
                     @if (User.IsInRole(IdentityHelper.Customer))
                     {
                         <div class="nav-item">
                             <a class="nav-link text-dark m-2" asp-controller="Cart" asp-action="Summary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                            </svg>
-                            @CookieHelper.GetTotalCartProducts(sessionData)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                </svg>
+                                @CookieHelper.GetTotalCartProducts(sessionData)
                             </a>
                         </div>
                     }
                     <partial name="_LoginPartial" />
+
+                    <img alt="Weather Icon" height="100" src="@string.Format("https://openweathermap.org/img/wn/{0}@2x.png", GetWeather.weather.WeatherIcon)" />
+                    <span>@GetWeather.weather.City &nbsp;</span>
+                    Temperature(Feels Like)&nbsp;<label>@(Convert.ToInt32((Convert.ToDouble(GetWeather.weather.TempFeelsLike) * 9 / 5 + 32))) &nbsp;</label>
+                    Temperature &nbsp; <label>@(Convert.ToInt32((Convert.ToDouble(GetWeather.weather.Temp) * 9 / 5 + 32)))</label>
                 </div>
             </div>
         </nav>
@@ -58,7 +74,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2021 - LumberManagerWebEdition - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2021 - LumberManagerWebEdition
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

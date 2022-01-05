@@ -1,0 +1,34 @@
+﻿
+@{
+    ViewData["Title"] = "SetShipDate";
+    Order order = (Order)ViewData["Order"];
+    User user = (User)ViewData["User"];
+    DateTime date = (DateTime)ViewData["Date"];
+}
+
+<link rel="stylesheet" href="/css/dtsel.css" />
+
+@if (TempData["Error"] != null)
+    {
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    @TempData["Error"]
+    <button type="button" class="close" data-dismiss="alert" aria-label="close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+    }
+
+<h1>Set Ship Date For Order# @order.OrderID</h1>
+
+<form id="form" class="form" asp-action="SetShipDate">
+    <div class="form-group">
+        <input type="text" value="@date.ToString("MM/dd/yyyy")" id="date" name="dateTimePicker" />
+        <span id="error" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input id="submit" type="submit" value="Set Date" asp-route-user="@user.Id" asp-route-order="@order.OrderID" asp-route-date="temp" class="btn btn-primary" />
+    </div>
+</form>
+
+<script src="~/js/CheckDate.js"></script>
+<script src="/js/dtsel.js"></script>
